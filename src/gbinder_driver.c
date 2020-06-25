@@ -1075,7 +1075,7 @@ gbinder_driver_local_request_new(
     GBinderWriter writer;
 
     gbinder_local_request_init_writer(req, &writer);
-    self->protocol->write_rpc_header(&writer, iface);
+    self->protocol->write_rpc_header(&writer, iface, self->dev);
     return req;
 }
 

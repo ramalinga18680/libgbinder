@@ -134,6 +134,7 @@ typedef enum gbinder_status {
 /* Default binder devices */
 #define GBINDER_DEFAULT_BINDER            "/dev/binder"
 #define GBINDER_DEFAULT_HWBINDER          "/dev/hwbinder"
+#define GBINDER_DEFAULT_VNDBINDER         "/dev/vndbinder"
 
 extern GLogModule GBINDER_LOG_MODULE;
 

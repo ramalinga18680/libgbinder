@@ -44,7 +44,7 @@
 struct gbinder_rpc_protocol {
     guint32 ping_tx;
     void (*write_ping)(GBinderWriter* writer);
-    void (*write_rpc_header)(GBinderWriter* writer, const char* iface);
+    void (*write_rpc_header)(GBinderWriter* writer, const char* iface,const char *dev);
     const char* (*read_rpc_header)(GBinderReader* reader, guint32 txcode,
         char** iface);
 };

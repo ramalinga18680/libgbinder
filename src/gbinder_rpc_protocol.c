@@ -49,7 +49,11 @@
 /* No idea what that is... */
 #define STRICT_MODE_PENALTY_GATHER (0x40 << 16)
 #define BINDER_RPC_FLAGS (STRICT_MODE_PENALTY_GATHER)
+#define B_PACK_CHARS(c1,c2,c3,c4) ((((c1) << 24)) | (((c2) << 16)) | (((c3) << 8)) | (c4))
 
+const int32_t kVndHeader = B_PACK_CHARS('V', 'N', 'D', 'R');
+const int32_t kSysHeader = B_PACK_CHARS('S', 'Y', 'S', 'T');
+static const int32_t kUnsetWorkSource = -1;
 static
 void
 gbinder_rpc_protocol_binder_write_ping(
@@ -62,7 +66,8 @@ static
 void
 gbinder_rpc_protocol_binder_write_rpc_header(
     GBinderWriter* writer,
-    const char* iface)
+    const char* iface,
+    const char* dev)
 {
     /*
      * writeInt32(IPCThreadState::self()->getStrictModePolicy() |
@@ -70,6 +75,12 @@ gbinder_rpc_protocol_binder_write_rpc_header(
      * writeString16(interface);
      */
     gbinder_writer_append_int32(writer, BINDER_RPC_FLAGS);
+    /*Add the work source uid and the rpc header before the iface */
+    gbinder_writer_append_int32(writer, kUnsetWorkSource);
+   if(dev && !strcmp(dev, GBINDER_DEFAULT_VNDBINDER))
+    gbinder_writer_append_int32(writer, kVndHeader);
+   else if(dev && !strcmp(dev, GBINDER_DEFAULT_BINDER))
+    gbinder_writer_append_int32(writer, kSysHeader);
     gbinder_writer_append_string16(writer, iface);
 }
 
@@ -84,6 +95,9 @@ gbinder_rpc_protocol_binder_read_rpc_header(
         /* Internal transaction e.g. GBINDER_DUMP_TRANSACTION etc. */
         *iface = NULL;
     } else if (gbinder_reader_read_int32(reader, NULL)) {
+	/* read out the work source uid and the rpc header */
+	gbinder_reader_read_int32(reader, NULL);
+	binder_reader_read_int32(reader, NULL);
         *iface = gbinder_reader_read_string16(reader);
     } else {
         *iface = NULL;
